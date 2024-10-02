@@ -1,108 +1,446 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <title>Bitbucket</title>
-    <meta id="bb-bootstrap" data-current-user="{&quot;isAuthenticated&quot;: true, &quot;isKbdShortcutsEnabled&quot;: true, &quot;isSshEnabled&quot;: false, &quot;id&quot;: 7452357, &quot;uuid&quot;: &quot;{ed38e8e6-8ff5-45da-90e3-ed4d67bda35a}&quot;, &quot;displayName&quot;: &quot;Shane Lin&quot;, &quot;nickname&quot;: &quot;shanelin&quot;, &quot;avatarUrl&quot;: &quot;https://secure.gravatar.com/avatar/5c6d2cf3f2c55b8b2c26be74b595afbc?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FSL-2.png&quot;, &quot;avatarUrl2x&quot;: &quot;https://secure.gravatar.com/avatar/5c6d2cf3f2c55b8b2c26be74b595afbc?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FSL-2.png&amp;s=64&quot;, &quot;isTeam&quot;: false, &quot;hasPremium&quot;: false, &quot;mention_id&quot;: &quot;557058:90a08d00-60da-4b0c-948d-a289669f1c25&quot;}"
-data-atlassian-id="557058:90a08d00-60da-4b0c-948d-a289669f1c25"
+var Mancala = {
+  _GAME_SPEED: 500,
+  _CUPS: 6,
+  _CUP_MARBLES: 3,
+  _gameData: {
+      players: {},
+      autoPlay: false
+  },
+  _turnData: null
+};
 
-    data-target-workspace-uuid="ed38e8e6-8ff5-45da-90e3-ed4d67bda35a"
- />
-    <meta name="frontbucket-version" content="32c216b5d88c36c768644138cb1aea59ad0bdfac">
-    <meta name="frontbucket-environment" content="production">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    
-    
+var Cup = function(marbles, isPot, player, idx) {
+  this.marbles = marbles;
+  this.pot = isPot;// special pot cup, only add, not remove
+  this.player = player;
+  this.idx = idx;
+  // this.render();
+};
+Cup.prototype.getData = function() {
+  return {
+      pot: this.pot,
+      player: this.player,
+      idx: this.idx
+  };
+};
+Cup.prototype.getSelector = function() {
+  return `.${this.player}.cup.c${this.idx}`;
+};
+// when adding, mancala only add 1 to the cup
+Cup.prototype.add = function() {
+  this.marbles++;
+  console.log("#cup: add:", this.marbles);
+  document.querySelector(this.getSelector()).innerHTML += Cup.getMarble();
+  document.querySelector(this.getSelector()).nextElementSibling.innerHTML = this.marbles;// reset count
 
+  // this.render();
+};
+// returns count of marbles in the cup
+Cup.prototype.getCount = function(){
+  return this.marbles;
+};
+// returns count of marbles in the cup
+Cup.prototype.isPot = function(){
+  return this.pot;
+};
+Cup.prototype.getPlayer = function(){
+  return this.playert;
+};
+// when remove, mancala removes all marbles from a cup
+Cup.prototype.removeAll = function() {
+  var count = this.marbles;
+  this.marbles = 0;
+  console.log("#cup: removeAll:", count);
+  this.render();
+  return count;
+};
+Cup.prototype.render = function(){
+  var html = '';
+  for(var i = 0; i < this.marbles; i++){
+      html += Cup.getMarble();
+  }
+  document.querySelector(this.getSelector()).dataset.cup = JSON.stringify(this.getData());
+console.log("####", this.getSelector());
+  document.querySelector(this.getSelector()).innerHTML = html;
+  document.querySelector(this.getSelector()).nextElementSibling.innerHTML = this.marbles;// reset count
+};
+Cup.getMarble = function(){
+  var style = Helper.getMarbleStyle();
+  var pos = Helper.getMarblePosition();
+  return `<div class="${style}" style="${pos}"></div>`;
+};
+var Helper = {};
+Helper.getMarbleStyle = function(){
+  var MAX = 10;
+  var idx = Math.floor(Math.random() * 10);
+  return `marble m${idx}`;
+};
+Helper.getMarblePosition = function(pot){
+  var MAX = 10;
+  var idx = Math.floor(Math.random() * 10);
+  var t = 60;
+  var l = !pot ? 60 : 160;
+  var top = Math.random() * t;
+  var left = Math.random() * l;
 
-<meta name="bb-env" content="production" />
-<meta id="bb-canon-url" name="bb-canon-url" content="https://bitbucket.org">
-<meta name="bb-api-canon-url" content="https://api.bitbucket.org">
-<meta name="apitoken" content="{&quot;token&quot;: &quot;zplmPdIk3tdVgmd2SMpKRgBCXfAA87wyflMKhFs8CSw4SXl8185GyUD9BRPocv1qA96uNw-r2KCSXK1Vu8jdM0Qc8tuqOhZoE_OqKo_SUyyY1Fvi-f_W-e7NpvMrA3HLCNRpSbmK22Uy39uwi8sqiEqmXkfK4Jt0kgajJaINu7y4Rcu_HGrFC90=&quot;, &quot;expiration&quot;: 1727820078.3243608, &quot;expires_in&quot;: 300}">
-
-
-<meta name="bitbucket-commit-hash" content="7759b2219f4c">
-<meta name="bb-app-node" content="494c1d8c5447">
-<meta name="bb-dce-env" content="micros">
-<meta name="bb-view-name" content="bitbucket.apps.repo2.views.SourceView">
-<meta name="ignore-whitespace" content="False">
-<meta name="tab-size" content="None">
-<meta name="locale" content="en">
-<meta name="application-name" content="Bitbucket">
-<meta name="apple-mobile-web-app-title" content="Bitbucket">
-<meta name="slack-app-id" content="A8W8QLZD1">
-<meta name="statuspage-api-host" content="https://bqlf8qjztdtr.statuspage.io">
-
-
-<meta name="theme-color" content="#0049B0">
-<meta name="msapplication-TileColor" content="#0052CC">
-<meta name="msapplication-TileImage" content="https://bbc-object-storage--frontbucket.us-east-1.prod.public.atl-paas.net/7759b2219f4c/img/logos/bitbucket/mstile-150x150.png">
-<link rel="apple-touch-icon" sizes="180x180" type="image/png" href="https://bbc-object-storage--frontbucket.us-east-1.prod.public.atl-paas.net/7759b2219f4c/img/logos/bitbucket/apple-touch-icon.png">
-<link rel="icon" sizes="192x192" type="image/png" href="https://bbc-object-storage--frontbucket.us-east-1.prod.public.atl-paas.net/7759b2219f4c/img/logos/bitbucket/android-chrome-192x192.png">
-
-<link rel="icon" sizes="16x16 24x24 32x32 64x64" type="image/x-icon" href="/favicon.ico?v=2">
-<link rel="mask-icon" href="https://bbc-object-storage--frontbucket.us-east-1.prod.public.atl-paas.net/7759b2219f4c/img/logos/bitbucket/safari-pinned-tab.svg" color="#0052CC">
-
-<link rel="search" type="application/opensearchdescription+xml" href="/opensearch.xml" title="Bitbucket">
-
-    <meta name="description" content="">
-    <meta name="bb-single-page-app" content="true">
-    
-      <link rel="stylesheet" href="https://bbc-object-storage--frontbucket.us-east-1.prod.public.atl-paas.net/frontbucket/assets/present/32c216b5d88c36c768644138cb1aea59ad0bdfac/vendor.css">
-    
-    
-    
-    <script nonce="7y/8dK3zKxySEiw9bvplqw==">
-
-if (window.performance) {
-
-  
-  window.performance.okayToSendMetrics = !document.hidden && 'onvisibilitychange' in document;
-
-  if (window.performance.okayToSendMetrics) {
-
-    
-    window.addEventListener('visibilitychange', function () {
-      if (document.hidden) {
-        window.performance.okayToSendMetrics = false;
+  return `top: ${top}px;left:${left}px`;
+};
+// all marbles in cups
+Helper.getPlayerCupMarbleCount = function(playerId){
+  var sum = 0;
+  var cups =  Mancala._gameData.players[playerId].cups;
+  for (var i = 0; cups && i < cups.length; i++) {
+      if (!cups[i].isPot()) {
+          sum += cups[i].getCount();
       }
-    });
+  }
+  return sum;
+};
+
+Helper.getFinalCount = function(){
+  var p1 = window.Mancala._gameData.players['player1'].cups[6].getCount();
+  var p2 = window.Mancala._gameData.players['player2'].cups[6].getCount();
+  return {
+      "player1": p1,
+      "player2": p2
+  }
+};
+
+Helper.exportGameData = function(){
+  return JSON.parse(JSON.stringify(Mancala));
+};
+Helper.importGameData = function(input){
+  let data = input
+  if(typeof input === 'string') {
+      data = JSON.parse(input);
+  }
+  Mancala = data;
+  for(var p in data._gameData.players){// loop through players
+      var player = data._gameData.players[p];
+      for(var i = 0; i < player.cups.length; i++) {// loop through cups
+          var cup = player.cups[i];
+          var newCup = new Cup(cup.marbles, cup.pot, cup.player, cup.idx);
+          newCup.render();
+          Mancala._gameData.players[p].cups[cup.idx] = newCup;
+      }
+  }
+  var player = Mancala._gameData.players[Mancala._turnData.playerId].name;
+  if (Mancala._turnData.autoPlay) {
+      Game.showMsg(`Auto play.`);
+      Helper.startAutoPlay();
+      return;
+  }
+  Game.showMsg(`${player}'s turn. Please select a cup.`);
+};
+Helper.getOtherPlayerId = function(player) {
+  return player === "player1" ? "player2" : "player1";
+};
+Helper.isEndOfGame = function() {
+  var pots = Helper.getFinalCount();
+  // just check combinded pots is equal to inital marble count:
+  return (Mancala._CUPS * Mancala._CUP_MARBLES * 2) === (pots.player1 + pots.player2);
+  // return Helper.getPlayerCupMarbleCount('player1') === 0 && Helper.getPlayerCupMarbleCount('player2') === 0;
+};
+Helper.getPlayerName = function(playerId) {
+  return Mancala._gameData.players[playerId].name;
+};
+Helper.getWinner = function() {
+  var outcome = Helper.getFinalCount();
+  if (outcome.player1 == outcome.player2) {// draw
+      return null;
+  }
+  return outcome.player1 > outcome.player2 ? 'player1' : 'player2';
+};
+Helper.showWinner = function() {
+  var winner = Helper.getWinner()
+  if (winner === null) {
+      Game.showMsg("It's a Draw!  Play again?");
+  } else {
+      var player = Helper.getPlayerName(winner)
+      Game.showMsg(`The winner is ${player}!`);
+  }
+};
+Helper.startAutoPlay = function() {
+  setTimeout( function(){
+      document.querySelector(`.${Mancala._turnData.cupSide}.cup.c${Mancala._turnData.cupIdx}`).click();
+  }, Mancala._GAME_SPEED);
+};
+Helper.endOfGameRoutine = function(){
+  if (window.intervalKey) {
+      window.clearInterval(window.intervalKey);
+      window.intervalKey = null;
+  }
+  Game.showMsg(`End of game.`);
+
+  Helper.showWinner();
+  return;
+};
+var Game = function(){
+  this.CUPS = 6;
+  this.MARBLES = 3;
+  var player1 = {
+      id: "player1",
+      name: "kristen",
+      cups: this.setupPlayer("player1")
+  }
+  var player2 = {
+      id: "player2",
+      name: "Leia",
+      cups: this.setupPlayer("player2")
+  }
+  window.Mancala._gameData = {
+      players: {
+          player1: player1,
+          player2: player2
+      }
+  };
+
+  var that = this;
+  document.querySelector(".wrapper").addEventListener("click", function(evt){
+      // TODO: move into validation function
+      if (window.intervalKey) {// play in progress
+          Game.showMsg(`Turn in progress, please wait`);
+          return;
+      }
+      var elem = evt.srcElement;
+      // clicked on a marble
+      if (elem.classList.contains("marble")){
+          elem = elem.parentElement;
+      }
+      // something else: a pot or not a cup
+      if (elem.classList.contains("pot") || !elem.classList.contains("cup")){
+          evt.stopPropagation();
+          evt.cancelBubble = true;
+          Game.showMsg(`Please select a cup`);
+          return;
+      }
+      console.log('###click', elem);
+      if (!elem) {// clicked on something other than the cups
+          Game.showMsg(`${window.Mancala._gameData.players[window.Mancala._turnData.playerId].name} turn, please make your move`);
+          return;
+      }
+      that.playTurn(elem);
+  });
+
+};
+Game.prototype.setupPlayer = function(playerId){
+  var playerPits = [];
+  // setup cups
+  for (var i = 0; i < this.CUPS; i++){
+      var cup = new Cup(this.MARBLES, false, playerId, i);
+      cup.render();
+      playerPits.push(cup);
+  }
+  // setup pot
+  var pot = new Cup(0, true, playerId, i);
+  pot.render();
+  playerPits.push(pot);
+  return playerPits;
+};
+Game.prototype.playTurn = function(cup){
+  console.log('###playTurn', cup);
+
+  // if (!cup) {// clicked on something other than the cups
+  //     Game.showMsg(`${window.Mancala._gameData.players[window.Mancala._turnData.playerId].name} turn, please make your move`);
+  //     return;
+  // }
+
+  var data = JSON.parse(cup.dataset.cup);//cup.classList; i.e.: {"pot":false,"player":"player2","idx":5}
+  
+  var cupSide =  data.player;//data.contains("player1") ? "player1" : "player2";
+  if (!window.Mancala._turnData.playerId) {
+      window.Mancala._turnData.playerId = cupSide;
+      window.Mancala._turnData.cupSide = cupSide;
   }
 
+  if (window.Mancala._turnData.playerId && data.player !== window.Mancala._turnData.playerId) {// check if correct player clicked
+      var playerMarbles = Helper.getPlayerCupMarbleCount(Mancala._turnData.playerId);// check if player has marbles in cups
+      // check if player's own side run out of marble
+      if (playerMarbles !== 0) {
+          console.log("##wrong player");
+          Game.showMsg(`${window.Mancala._gameData.players[window.Mancala._turnData.playerId].name} turn, please make your move`);
+          return;
+      } else {
+          Mancala._turnData.cupSide = data.player;
+          Mancala._turnData.cupIdx = data.idx;
+          // window.Mancala._turnData.otherSide = true;// move other player's marble
+      }
+  }
+
+  if (window.Mancala._turnData && !window.Mancala._turnData.playerId) {// the very first move
+      // window.Mancala._turnData.playerId = data.contains("player1") ? "player1" : "player2";
+      window.Mancala._turnData.playerId = data.player;
+  }
+
+  // var cupSide =  data.player;//data.contains("player1") ? "player1" : "player2";
+  // var cupData = JSON.parse(cup.dataset.cup);
+  var idx = data.idx;//cupData.idx;
+  // TODO: fix player run out of marbles on own side and click otherside cups
+  // TODO: move into click validation: chech if cups is mepty
+  if (window.Mancala._gameData.players[cupSide].cups[idx].getCount() === 0) {
+      Game.showMsg(`${window.Mancala._gameData.players[window.Mancala._turnData.playerId].name} turn, please select a non-empty cup`);
+      return;
+  }
+  // Mancala._turnData.cupSide = cupSide;// which side to pick
+  Mancala._turnData.cupIdx = idx;
+  Game.playTurn(cupSide, window.Mancala._turnData.playerId, idx/*, this.players*/);
+  return;
+};
+
+Game.playTurn = function(side, playerId, cupIdx/*, players*/){
+  var cupSide = window.Mancala._turnData.cupSide;
+  var cupIdx = window.Mancala._turnData.cupIdx;
+  var cups = window.Mancala._gameData.players[cupSide].cups;
+  var currentCup = cups[cupIdx];
+  if (currentCup.isPot()) {// don't pickup from the pot
+      cupSide = cupSide === "player1" ? "player2" : "player1";
+      cupIdx = 0;// if we chaneg side, then we change cupIdx to 0
+  }
+  var marbles = cups[cupIdx].removeAll();
+
+  Mancala._turnData.marbles = marbles;
+  Mancala._turnData.cupIdx++;// next cup idx
+  if (Mancala._turnData.cupIdx >= 7) {// next move is beyaon the pot, we need to change side
+      Mancala._turnData.cupSide = cupSide === "player1" ? "player2" : "player1";
+      Mancala._turnData.cupIdx = 0;// start from cup 0
+  }
+
+  window.intervalKey = window.setInterval(Game.playAMove, Mancala._GAME_SPEED);
+  return;
+};
+
+Game.playAMove = function(){
+  var player = Mancala._turnData.playerId;
+  var otherPlayer = Helper.getOtherPlayerId(player);
+
+  if (Helper.getPlayerCupMarbleCount(player) === 0) {// payer has no more marbles, now player can play other player's marble
+      console.log(`###############, ${player} has no more marbles`);
+      if(Helper.getPlayerCupMarbleCount(otherPlayer) === 0) {
+          console.log(`###############, ${otherPlayer} has no more marbles`);
+          // auto play: me, you, me, you....
+          Game.showMsg("Last marble, start Auto Play.");
+          window.Mancala._turnData.autoPlay = true;
+      }
+  }
+  var cupIdx = Mancala._turnData.cupIdx;
+  var cupSide = Mancala._turnData.cupSide;
   
-  
-}
-</script>
-  </head>
-  <body>
-    <div id="root">
-    <script nonce="7y/8dK3zKxySEiw9bvplqw==">
-      window.__webpack_public_path__ = "https://bbc-object-storage--frontbucket.us-east-1.prod.public.atl-paas.net/frontbucket/assets/present/32c216b5d88c36c768644138cb1aea59ad0bdfac/";
-    </script>
-    
-    
-    
-    </div>
-    <script nonce="7y/8dK3zKxySEiw9bvplqw==">
-      
-        window.__sentry__ = {"dsn": "https://2dcda83904474d8c86928ebbfa1ab294@o55978.ingest.sentry.io/1480772", "environment": "production", "tags": {"dc_location": "Micros-3", "micros_deployment_id": "a2o347ahup9qdhpi", "micros_service": "bbc-website", "micros_envtype": "prod", "micros_service_version": "102203", "micros_instance_id": "i-09f29757c60ab008e", "micros_zone": "us-east-1.prod.atl-paas.net", "revision": "7759b2219f4c"}};
-      
-      window.__app_data__ = {"navigationIsOpen": true, "tenantId": "ed38e8e6-8ff5-45da-90e3-ed4d67bda35a", "features": {"enable-react-ufo": true, "bbc-platform-notifications": true, "acjs-next": true, "compass-in-cross-product-search-non-admin": true, "disable-compass-bitbucket-repository-card": false}, "links": {"backButtonUrl": "https://bitbucket.org/shanelin/mancala/src/master/", "overviewUrl": "/shanelin/workspace/overview/"}, "initialContext": {"workspace": {"type": "workspace", "uuid": "{ed38e8e6-8ff5-45da-90e3-ed4d67bda35a}", "name": "Shane Lin", "slug": "shanelin", "is_private": true, "is_privacy_enforced": null, "links": {"avatar": {"href": "https://bitbucket.org/workspaces/shanelin/avatar/?ts=1543679931"}, "html": {"href": "https://bitbucket.org/shanelin/"}, "self": {"href": "https://bitbucket.org/!api/2.0/workspaces/shanelin"}}, "created_on": "2018-12-01T15:58:51.301864+00:00", "forking_mode": "allow_forks"}, "repository": {"type": "repository", "full_name": "shanelin/mancala", "links": {"self": {"href": "https://bitbucket.org/!api/2.0/repositories/shanelin/mancala"}, "html": {"href": "https://bitbucket.org/shanelin/mancala"}, "avatar": {"href": "https://bytebucket.org/ravatar/%7Bc11ce64f-bbb7-46c8-bf64-02e2208a145e%7D?ts=js"}}, "name": "mancala", "slug": "mancala", "is_private": false, "uuid": "{c11ce64f-bbb7-46c8-bf64-02e2208a145e}"}, "project": {"type": "project", "key": "PROJ", "uuid": "{53f33f79-59e5-4976-8447-ac5b934501e8}", "is_private": false, "name": "Untitled project", "description": "Project created by Bitbucket for Shane Lin", "links": {"self": {"href": "https://bitbucket.org/!api/2.0/workspaces/shanelin/projects/PROJ"}, "html": {"href": "https://bitbucket.org/shanelin/workspace/projects/PROJ"}, "avatar": {"href": "https://bitbucket.org/account/user/shanelin/projects/PROJ/avatar/32?ts=1543679931"}}, "created_on": "2018-12-01T15:58:51.305894+00:00", "updated_on": "2018-12-01T15:58:51.305908+00:00", "has_publicly_visible_repos": true}}, "site_message": {"id": 31795, "title": "Get up to 8x faster builds with Bitbucket Pipelines", "text": "We're excited to announce the launch of our new Bitbucket Pipelines runtime, offering up to 8x faster CI/CD builds", "appearance": "flag", "feature_slug": "", "ld_feature": "show-bitbucket-pipelines-8-x-step-popup", "url": "https://bitbucket.org/blog/announcing-our-new-ci-cd-runtime-with-up-to-8x-faster-builds"}, "user": {"aaid": "557058:90a08d00-60da-4b0c-948d-a289669f1c25", "uuid": "ed38e8e6-8ff5-45da-90e3-ed4d67bda35a", "isAtlassian": false, "isBitbucket": false}, "frontbucket_version": "32c216b5d88c36c768644138cb1aea59ad0bdfac", "frontbucket_environment": "production"};
-      
-        window.__initial_state__ = {"global": {"geoip_country": "UNKNOWN", "is_mobile_user_agent": false, "site_message": {"id": 31795, "title": "Get up to 8x faster builds with Bitbucket Pipelines", "text": "We're excited to announce the launch of our new Bitbucket Pipelines runtime, offering up to 8x faster CI/CD builds", "appearance": "flag", "feature_slug": "", "ld_feature": "show-bitbucket-pipelines-8-x-step-popup", "url": "https://bitbucket.org/blog/announcing-our-new-ci-cd-runtime-with-up-to-8x-faster-builds"}, "needs_marketing_consent": false, "marketing_consent_locale": null, "whats_new_feed": "https://bitbucket.org/blog/wp-json/wp/v2/posts?categories=196&context=embed&per_page=6&orderby=date&order=desc", "locale": "en", "path": "/shanelin/mancala/src/master/mancala.js", "isFocusedTask": false, "focusedTaskBackButtonUrl": "https://bitbucket.org/shanelin/mancala/src/master/", "features": {"lookup-pr-approvers-from-prs": true, "log-asap-errors": true, "provisioning-install-pipelines-addon": true, "fd-prs-client-cache-fallback": true, "block-non-pipelines-custom-events-webhooks": true, "view-source-filtering-upon-timeout": true, "read-only-message-migrations": true, "provisioning-skip-workspace-creation": true, "hot-91446-add-tracing-x-b3": true, "fd-repository-page-loading-error-guard": true, "uninstall-dvcs-addon-only-when-jira-is-removed": true, "auth-flow-adg3": true, "workspace-member-set-last-accessed": true, "use-elasticache-lsn-storage": true, "whitelisted_throttle_exemption": true, "atlassian-editor": true, "bbc.core.pride-logo": false, "deployments-ui-in-frontbucket": true, "pipelines-settings-ui-in-frontbucket": true, "pipelines-deployments-settings-ui-in-frontbucket": true, "pipelines-runners-settings-ui-in-frontbucket": true, "pr-dependencies": false, "commit-expand-inno": false, "syntax-highlighting": false, "create-workspace-show-recaptcha": true, "spa-account-settings--settings-index": false, "lazy-diffstat": false, "core-ui-global-token-theme": false, "disable-reviewer-permissions-call": true, "enable-navigation-color-theme-picker": false, "bbc_new_nav": false, "extensible-merge-checks-enabled": false, "rebase-sync": true, "acjs-next": true, "compass-in-cross-product-search-non-admin": true, "disable-compass-bitbucket-repository-card": false, "workspace-ai-enabled": false, "fetch-annotations-with-session-auth": false, "pr-code-push-webhook": false, "enable-dynamic-pipelines": true, "unresolved-comments-check": false, "project-and-workspace-custom-merge-checks": false, "pr-review-groups": false, "bbc-platform-notifications": true, "pull-request-labels": false, "squash-fast-forward-merge-strategy": true, "rebase-no-fast-forward-merge-strategy": true, "rebase-fast-forward-merge-strategy": true, "prevent-forking-outside-workspace": true}, "isNavigationOpen": true, "flags": [], "horizontalNavigationItems": {"mainItems": [{"id": "overview-tab", "label": "Your work", "tab_name": "overview", "anchor": true, "weight": 100, "is_premium": null, "is_beta": null, "is_new": null, "url": "/shanelin/workspace/overview/", "target": "_self", "icon_class": "", "badge_label": null, "matching_url_prefixes": [], "analytics_label": "overview", "analytics_payload": {}, "is_client_link": true, "is_external_link": false, "is_dropdown_item": false, "test_id": null, "children": [], "type": "menu_item", "icon": ""}, {"id": "pullrequests-tab", "label": "Pull requests", "tab_name": "pullrequests", "anchor": true, "weight": 140, "is_premium": null, "is_beta": null, "is_new": null, "url": "/shanelin/workspace/pull-requests/", "target": "_self", "icon_class": "", "badge_label": null, "matching_url_prefixes": [], "analytics_label": "pullrequests", "analytics_payload": {}, "is_client_link": true, "is_external_link": false, "is_dropdown_item": false, "test_id": null, "children": [], "type": "menu_item", "icon": ""}, {"id": "repositories-tab", "label": "Repositories", "tab_name": "repositories", "anchor": true, "weight": 160, "is_premium": null, "is_beta": null, "is_new": null, "url": "/shanelin/workspace/repositories/", "target": "_self", "icon_class": "", "badge_label": null, "matching_url_prefixes": [], "analytics_label": "repositories", "analytics_payload": {}, "is_client_link": true, "is_external_link": false, "is_dropdown_item": true, "test_id": null, "children": [], "type": "menu_item", "icon": ""}, {"id": "projects-tab", "label": "Projects", "tab_name": "projects", "anchor": true, "weight": 200, "is_premium": null, "is_beta": null, "is_new": null, "url": "/shanelin/workspace/projects/", "target": "_self", "icon_class": "", "badge_label": null, "matching_url_prefixes": [], "analytics_label": "projects", "analytics_payload": {}, "is_client_link": true, "is_external_link": false, "is_dropdown_item": true, "test_id": null, "children": [], "type": "menu_item", "icon": ""}, {"id": "people-tab", "label": "People", "tab_name": "people", "anchor": true, "weight": 220, "is_premium": null, "is_beta": null, "is_new": null, "url": "/shanelin/workspace/members/", "target": "_self", "icon_class": "", "badge_label": null, "matching_url_prefixes": [], "analytics_label": "people", "analytics_payload": {}, "is_client_link": false, "is_external_link": false, "is_dropdown_item": false, "test_id": null, "children": [], "type": "menu_item", "icon": ""}], "secondaryItems": [{"id": "snippets-tab", "label": "Snippets", "tab_name": "snippets", "anchor": true, "weight": 400, "is_premium": null, "is_beta": null, "is_new": null, "url": "/shanelin/workspace/snippets/", "target": "_self", "icon_class": "", "badge_label": null, "matching_url_prefixes": [], "analytics_label": "snippets", "analytics_payload": {}, "is_client_link": false, "is_external_link": false, "is_dropdown_item": false, "test_id": null, "children": [], "type": "menu_item", "icon": ""}], "settingsItems": [{"id": "workspace-settings-horizontal-link", "label": "Workspace settings", "tab_name": null, "anchor": true, "weight": 100, "is_premium": null, "is_beta": null, "is_new": null, "url": "/shanelin/workspace/settings", "target": "_self", "icon_class": "", "badge_label": null, "matching_url_prefixes": [], "analytics_label": "workspace.settings.workspace-settings", "analytics_payload": {}, "is_client_link": true, "is_external_link": false, "is_dropdown_item": false, "test_id": null, "children": [], "type": "menu_item", "icon": ""}]}, "currentUser": {"display_name": "Shane Lin", "links": {"self": {"href": "https://bitbucket.org/!api/2.0/users/%7Bed38e8e6-8ff5-45da-90e3-ed4d67bda35a%7D"}, "avatar": {"href": "https://secure.gravatar.com/avatar/5c6d2cf3f2c55b8b2c26be74b595afbc?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FSL-2.png"}, "html": {"href": "https://bitbucket.org/%7Bed38e8e6-8ff5-45da-90e3-ed4d67bda35a%7D/"}}, "created_on": "2016-07-29T21:39:54.479361+00:00", "is_active": true, "type": "user", "uuid": "{ed38e8e6-8ff5-45da-90e3-ed4d67bda35a}", "has_2fa_enabled": null, "properties": {}, "is_staff": false, "account_id": "557058:90a08d00-60da-4b0c-948d-a289669f1c25", "nickname": "shanelin", "account_status": "active", "location": null, "zoneinfo": "America/Los_Angeles", "organization": "", "department": null, "job_title": "", "extra": {"has_atlassian_account": true, "has_ssh_key": false, "has_premium": false, "workspace_id": "shanelin"}}, "currentUserEmail": "pobox4shane@gmail.com", "isCodeReviewSidebarOpen": true, "isCodeReviewWelcomeDialogOpen": true, "isCommitViewSidebarOpen": true, "isPullRequestIgnoreWhitespaceEnabled": false, "isPullRequestWordDiffEnabled": true, "isPullRequestColorBlindModeEnabled": false, "isPullRequestAnnotationsEnabled": true, "isPullRequestSingleFileModeEnabled": false, "isSourceBrowserSidebarOpen": true, "isBranchSidebarOpen": false, "isCommitSidebarOpen": true, "isCreatePRSidebarOpen": true, "isPipelineListSidebarOpen": false, "sourceBrowserSidebarWidth": null, "pullRequestDiffViewMode": null, "pullRequestFileViewMode": null, "pullRequestDiffTabSize": null, "commitViewSidebarWidth": null, "codeReviewSidebarWidth": "280", "branchSidebarWidth": null, "commitSidebarWidth": "280", "createPRSidebarWidth": null, "pipelineListSidebarWidth": null, "importBitbucketActions": [], "globalTheme": null, "bitbucketActions": [{"id": "repository-create-dropdown-item", "label": "Repository", "tab_name": null, "anchor": true, "weight": 100, "is_premium": null, "is_beta": null, "is_new": null, "url": "/shanelin/workspace/create/repository", "target": "_self", "icon_class": "", "badge_label": null, "matching_url_prefixes": [], "analytics_label": "createRepository", "analytics_payload": {}, "is_client_link": false, "is_external_link": false, "is_dropdown_item": false, "test_id": "repository-create-item", "children": [], "type": "menu_item", "icon": ""}, {"id": "project-create-dropdown-item", "label": "Project", "tab_name": null, "anchor": true, "weight": 120, "is_premium": null, "is_beta": null, "is_new": null, "url": "/shanelin/workspace/create/project", "target": "_self", "icon_class": "", "badge_label": null, "matching_url_prefixes": [], "analytics_label": "createProject", "analytics_payload": {}, "is_client_link": false, "is_external_link": false, "is_dropdown_item": false, "test_id": "project-create-item", "children": [], "type": "menu_item", "icon": ""}, {"id": "snippet-create-dropdown-item", "label": "Snippet", "tab_name": null, "anchor": true, "weight": 130, "is_premium": null, "is_beta": null, "is_new": null, "url": "/shanelin/workspace/snippets/new", "target": "_self", "icon_class": "", "badge_label": null, "matching_url_prefixes": [], "analytics_label": "createSnippet", "analytics_payload": {}, "is_client_link": false, "is_external_link": false, "is_dropdown_item": false, "test_id": "snippet-create-item", "children": [], "type": "menu_item", "icon": ""}], "isWorkspaceAdmin": true, "targetUser": {"display_name": "Shane Lin", "links": {"self": {"href": "https://bitbucket.org/!api/2.0/users/%7Bed38e8e6-8ff5-45da-90e3-ed4d67bda35a%7D"}, "avatar": {"href": "https://secure.gravatar.com/avatar/5c6d2cf3f2c55b8b2c26be74b595afbc?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FSL-2.png"}, "html": {"href": "https://bitbucket.org/%7Bed38e8e6-8ff5-45da-90e3-ed4d67bda35a%7D/"}}, "created_on": "2016-07-29T21:39:54.479361+00:00", "is_active": true, "type": "user", "uuid": "{ed38e8e6-8ff5-45da-90e3-ed4d67bda35a}", "has_2fa_enabled": null, "properties": {}, "is_staff": false, "account_id": "557058:90a08d00-60da-4b0c-948d-a289669f1c25", "nickname": "shanelin", "account_status": "active", "location": null, "zoneinfo": "America/Los_Angeles", "organization": "", "department": null, "job_title": ""}, "targetFeatures": {"lookup-pr-approvers-from-prs": true, "log-asap-errors": true, "provisioning-install-pipelines-addon": true, "fd-prs-client-cache-fallback": true, "block-non-pipelines-custom-events-webhooks": true, "view-source-filtering-upon-timeout": true, "read-only-message-migrations": true, "provisioning-skip-workspace-creation": true, "hot-91446-add-tracing-x-b3": true, "fd-repository-page-loading-error-guard": true, "uninstall-dvcs-addon-only-when-jira-is-removed": true, "auth-flow-adg3": true, "workspace-member-set-last-accessed": true, "use-elasticache-lsn-storage": true, "whitelisted_throttle_exemption": true, "atlassian-editor": true, "bbc.core.pride-logo": false, "deployments-ui-in-frontbucket": true, "pipelines-settings-ui-in-frontbucket": true, "pipelines-deployments-settings-ui-in-frontbucket": true, "pipelines-runners-settings-ui-in-frontbucket": true, "pr-dependencies": false, "commit-expand-inno": false, "syntax-highlighting": false, "create-workspace-show-recaptcha": true, "spa-account-settings--settings-index": false, "lazy-diffstat": false, "core-ui-global-token-theme": false, "disable-reviewer-permissions-call": true, "enable-navigation-color-theme-picker": false, "bbc_new_nav": false, "extensible-merge-checks-enabled": false, "rebase-sync": true, "acjs-next": true, "compass-in-cross-product-search-non-admin": true, "disable-compass-bitbucket-repository-card": false, "workspace-ai-enabled": false, "fetch-annotations-with-session-auth": false, "pr-code-push-webhook": false, "enable-dynamic-pipelines": true, "unresolved-comments-check": false, "project-and-workspace-custom-merge-checks": false, "pr-review-groups": false, "bbc-platform-notifications": true, "pull-request-labels": false, "squash-fast-forward-merge-strategy": true, "rebase-no-fast-forward-merge-strategy": true, "rebase-fast-forward-merge-strategy": true, "prevent-forking-outside-workspace": true}}, "section": {"repository": {"bitbucketActions": [{"id": "repo-create-branch-link", "label": "Branch", "tab_name": "create-branch", "anchor": true, "weight": 200, "is_premium": null, "is_beta": null, "is_new": null, "url": "/shanelin/mancala/branch", "target": "_self", "icon_class": "icon-create-branch", "badge_label": null, "matching_url_prefixes": [], "analytics_label": "repository.create_branch", "analytics_payload": {}, "is_client_link": true, "is_external_link": false, "is_dropdown_item": false, "test_id": null, "children": [], "type": "menu_item", "icon": "icon-create-branch"}, {"id": "repo-create-pull-request-link", "label": "Pull request", "tab_name": "create-pullreqst", "anchor": true, "weight": 300, "is_premium": null, "is_beta": null, "is_new": null, "url": "/shanelin/mancala/pull-requests/new", "target": "_self", "icon_class": "icon-create-pull-request", "badge_label": null, "matching_url_prefixes": [], "analytics_label": "create_pullrequest", "analytics_payload": {}, "is_client_link": true, "is_external_link": false, "is_dropdown_item": false, "test_id": "pull-request-create-item", "children": [], "type": "menu_item", "icon": "icon-create-pull-request"}], "cloneProtocol": "https", "connectActions": [], "currentRepository": {"type": "repository", "full_name": "shanelin/mancala", "links": {"self": {"href": "https://bitbucket.org/!api/2.0/repositories/shanelin/mancala"}, "html": {"href": "https://bitbucket.org/shanelin/mancala"}, "avatar": {"href": "https://bytebucket.org/ravatar/%7Bc11ce64f-bbb7-46c8-bf64-02e2208a145e%7D?ts=js"}, "clone": [{"name": "https", "href": "https://shanelin@bitbucket.org/shanelin/mancala.git"}, {"name": "ssh", "href": "git@bitbucket.org:shanelin/mancala.git"}]}, "name": "mancala", "slug": "mancala", "description": "mancala game in javascript", "scm": "git", "website": null, "owner": {"display_name": "Shane Lin", "links": {"self": {"href": "https://bitbucket.org/!api/2.0/users/%7Bed38e8e6-8ff5-45da-90e3-ed4d67bda35a%7D"}, "avatar": {"href": "https://secure.gravatar.com/avatar/5c6d2cf3f2c55b8b2c26be74b595afbc?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FSL-2.png"}, "html": {"href": "https://bitbucket.org/%7Bed38e8e6-8ff5-45da-90e3-ed4d67bda35a%7D/"}}, "type": "user", "uuid": "{ed38e8e6-8ff5-45da-90e3-ed4d67bda35a}", "account_id": "557058:90a08d00-60da-4b0c-948d-a289669f1c25", "nickname": "shanelin"}, "workspace": {"type": "workspace", "uuid": "{ed38e8e6-8ff5-45da-90e3-ed4d67bda35a}", "name": "Shane Lin", "slug": "shanelin", "is_private": true, "is_privacy_enforced": null, "links": {"avatar": {"href": "https://bitbucket.org/workspaces/shanelin/avatar/?ts=1543679931"}, "html": {"href": "https://bitbucket.org/shanelin/"}, "self": {"href": "https://bitbucket.org/!api/2.0/workspaces/shanelin"}}, "created_on": "2018-12-01T15:58:51.301864+00:00", "forking_mode": "allow_forks"}, "is_private": false, "project": {"type": "project", "owner": {"display_name": "Shane Lin", "links": {"self": {"href": "https://bitbucket.org/!api/2.0/users/%7Bed38e8e6-8ff5-45da-90e3-ed4d67bda35a%7D"}, "avatar": {"href": "https://secure.gravatar.com/avatar/5c6d2cf3f2c55b8b2c26be74b595afbc?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FSL-2.png"}, "html": {"href": "https://bitbucket.org/%7Bed38e8e6-8ff5-45da-90e3-ed4d67bda35a%7D/"}}, "type": "user", "uuid": "{ed38e8e6-8ff5-45da-90e3-ed4d67bda35a}", "account_id": "557058:90a08d00-60da-4b0c-948d-a289669f1c25", "nickname": "shanelin"}, "workspace": {"type": "workspace", "uuid": "{ed38e8e6-8ff5-45da-90e3-ed4d67bda35a}", "name": "Shane Lin", "slug": "shanelin", "links": {"avatar": {"href": "https://bitbucket.org/workspaces/shanelin/avatar/?ts=1543679931"}, "html": {"href": "https://bitbucket.org/shanelin/"}, "self": {"href": "https://bitbucket.org/!api/2.0/workspaces/shanelin"}}}, "key": "PROJ", "uuid": "{53f33f79-59e5-4976-8447-ac5b934501e8}", "is_private": false, "name": "Untitled project", "description": "Project created by Bitbucket for Shane Lin", "links": {"self": {"href": "https://bitbucket.org/!api/2.0/workspaces/shanelin/projects/PROJ"}, "html": {"href": "https://bitbucket.org/shanelin/workspace/projects/PROJ"}, "avatar": {"href": "https://bitbucket.org/account/user/shanelin/projects/PROJ/avatar/32?ts=1543679931"}}, "created_on": "2018-12-01T15:58:51.305894+00:00", "updated_on": "2018-12-01T15:58:51.305908+00:00", "has_publicly_visible_repos": true}, "fork_policy": "allow_forks", "updated_on": "2022-03-25T23:12:45.247757+00:00", "language": "javascript", "uuid": "{c11ce64f-bbb7-46c8-bf64-02e2208a145e}", "mainbranch": {"name": "master"}, "landing_page": "source"}, "menuItems": [{"id": "repo-source-link", "label": "Source", "tab_name": "source", "anchor": true, "weight": 200, "is_premium": null, "is_beta": null, "is_new": null, "url": "/shanelin/mancala/src", "target": "_self", "icon_class": "icon-source", "badge_label": null, "matching_url_prefixes": ["/diff", "/history-node"], "analytics_label": "repository.source", "analytics_payload": {}, "is_client_link": true, "is_external_link": false, "is_dropdown_item": false, "test_id": null, "children": [], "type": "menu_item", "icon": "icon-source"}, {"id": "repo-commits-link", "label": "Commits", "tab_name": "commits", "anchor": true, "weight": 300, "is_premium": null, "is_beta": null, "is_new": null, "url": "/shanelin/mancala/commits/", "target": "_self", "icon_class": "icon-commits", "badge_label": null, "matching_url_prefixes": [], "analytics_label": "repository.commits", "analytics_payload": {}, "is_client_link": true, "is_external_link": false, "is_dropdown_item": false, "test_id": null, "children": [], "type": "menu_item", "icon": "icon-commits"}, {"id": "repo-branches-link", "label": "Branches", "tab_name": "branches", "anchor": true, "weight": 400, "is_premium": null, "is_beta": null, "is_new": null, "url": "/shanelin/mancala/branches/", "target": "_self", "icon_class": "icon-branches", "badge_label": null, "matching_url_prefixes": ["/branch"], "analytics_label": "repository.branches", "analytics_payload": {}, "is_client_link": true, "is_external_link": false, "is_dropdown_item": false, "test_id": null, "children": [], "type": "menu_item", "icon": "icon-branches"}, {"id": "repo-pullrequests-link", "label": "Pull requests", "tab_name": "pullrequests", "anchor": true, "weight": 500, "is_premium": null, "is_beta": null, "is_new": null, "url": "/shanelin/mancala/pull-requests/", "target": "_self", "icon_class": "icon-pull-requests", "badge_label": null, "matching_url_prefixes": [], "analytics_label": "repository.pullrequests", "analytics_payload": {}, "is_client_link": true, "is_external_link": false, "is_dropdown_item": false, "test_id": null, "children": [], "type": "menu_item", "icon": "icon-pull-requests"}, {"id": "repo-pipelines-link", "label": "Pipelines", "tab_name": "pipelines", "anchor": true, "weight": 550, "is_premium": null, "is_beta": null, "is_new": null, "url": "/shanelin/mancala/pipelines", "target": "_self", "icon_class": "icon-pipelines", "badge_label": null, "matching_url_prefixes": [], "analytics_label": "repository.pipelines", "analytics_payload": {}, "is_client_link": true, "is_external_link": false, "is_dropdown_item": false, "test_id": null, "children": [], "type": "menu_item", "icon": "icon-pipelines"}, {"id": "repo-deployments-link", "label": "Deployments", "tab_name": "deployments", "anchor": true, "weight": 570, "is_premium": null, "is_beta": null, "is_new": null, "url": "/shanelin/mancala/deployments", "target": "_self", "icon_class": "icon-deployments", "badge_label": null, "matching_url_prefixes": [], "analytics_label": "repository.deployments", "analytics_payload": {}, "is_client_link": true, "is_external_link": false, "is_dropdown_item": false, "test_id": null, "children": [], "type": "menu_item", "icon": "icon-deployments"}, {"id": "repo-jira-link", "label": "Jira issues", "tab_name": "jira", "anchor": true, "weight": 600, "is_premium": null, "is_beta": null, "is_new": null, "url": "/shanelin/mancala/jira", "target": "_self", "icon_class": "icon-jira", "badge_label": null, "matching_url_prefixes": [], "analytics_label": "repository.jira", "analytics_payload": {}, "is_client_link": true, "is_external_link": false, "is_dropdown_item": false, "test_id": null, "children": [], "type": "menu_item", "icon": "icon-jira"}, {"id": "repo-security-link", "label": "Security", "tab_name": "security", "anchor": true, "weight": 610, "is_premium": null, "is_beta": null, "is_new": null, "url": "/shanelin/mancala/security", "target": "_self", "icon_class": "icon-security", "badge_label": null, "matching_url_prefixes": [], "analytics_label": "repository.security", "analytics_payload": {}, "is_client_link": true, "is_external_link": false, "is_dropdown_item": false, "test_id": null, "children": [], "type": "menu_item", "icon": "icon-security"}, {"id": "repo-downloads-link", "label": "Downloads", "tab_name": "downloads", "anchor": true, "weight": 800, "is_premium": null, "is_beta": null, "is_new": null, "url": "/shanelin/mancala/downloads/", "target": "_self", "icon_class": "icon-downloads", "badge_label": null, "matching_url_prefixes": [], "analytics_label": "repository.downloads", "analytics_payload": {}, "is_client_link": false, "is_external_link": false, "is_dropdown_item": false, "test_id": null, "children": [], "type": "menu_item", "icon": "icon-downloads"}, {"id": "repo-settings-link", "label": "Repository settings", "tab_name": "admin", "anchor": true, "weight": 100, "is_premium": null, "is_beta": null, "is_new": null, "url": "/shanelin/mancala/admin", "target": "_self", "icon_class": "icon-settings", "badge_label": null, "matching_url_prefixes": [], "analytics_label": "repository.settings", "analytics_payload": {}, "is_client_link": false, "is_external_link": false, "is_dropdown_item": false, "test_id": null, "children": [{"type": "menu_item_group", "title": "General", "key": "org.bitbucket.repository.settings.general", "children": [{"id": "repo-settings-details", "label": "Repository details", "tab_name": "details", "anchor": true, "weight": 100, "is_premium": null, "is_beta": null, "is_new": null, "url": "/shanelin/mancala/admin", "target": "_self", "icon_class": "", "badge_label": null, "matching_url_prefixes": [], "analytics_label": "repository.settings.details", "analytics_payload": {}, "is_client_link": true, "is_external_link": false, "is_dropdown_item": false, "test_id": null, "children": [], "type": "menu_item", "icon": ""}, {"id": "repo-settings-permissions", "label": "Repository permissions", "tab_name": "repositories.admin.permissions", "anchor": true, "weight": 101, "is_premium": null, "is_beta": null, "is_new": null, "url": "/shanelin/mancala/admin/permissions", "target": "_self", "icon_class": "", "badge_label": null, "matching_url_prefixes": [], "analytics_label": "repository.settings.permissions", "analytics_payload": {}, "is_client_link": true, "is_external_link": false, "is_dropdown_item": false, "test_id": null, "children": [], "type": "menu_item", "icon": ""}, {"id": "repo-settings-aliases-link", "label": "Username aliases", "tab_name": "committers", "anchor": true, "weight": 104, "is_premium": null, "is_beta": null, "is_new": null, "url": "/shanelin/mancala/admin/committers", "target": "_self", "icon_class": "", "badge_label": null, "matching_url_prefixes": [], "analytics_label": "repository.settings.aliases", "analytics_payload": {}, "is_client_link": true, "is_external_link": false, "is_dropdown_item": false, "test_id": null, "children": [], "type": "menu_item", "icon": ""}]}, {"type": "menu_item_group", "title": "Security", "key": "org.bitbucket.repository.settings.security", "children": [{"id": "repo-settings-security-access-keys-link", "label": "Access keys", "tab_name": "access-keys", "anchor": true, "weight": 110, "is_premium": null, "is_beta": null, "is_new": null, "url": "/shanelin/mancala/admin/access-keys/", "target": "_self", "icon_class": "", "badge_label": null, "matching_url_prefixes": [], "analytics_label": "repository.settings.access-keys", "analytics_payload": {}, "is_client_link": true, "is_external_link": false, "is_dropdown_item": false, "test_id": null, "children": [], "type": "menu_item", "icon": ""}, {"id": "repo-settings-security-access-tokens-link", "label": "Access tokens", "tab_name": "access-tokens", "anchor": true, "weight": 111, "is_premium": null, "is_beta": null, "is_new": null, "url": "/shanelin/mancala/admin/access-tokens", "target": "_self", "icon_class": "", "badge_label": null, "matching_url_prefixes": [], "analytics_label": "repository.settings.access-tokens", "analytics_payload": {}, "is_client_link": true, "is_external_link": false, "is_dropdown_item": false, "test_id": null, "children": [], "type": "menu_item", "icon": ""}]}, {"type": "menu_item_group", "title": "Workflow", "key": "org.bitbucket.repository.settings.workflow", "children": [{"id": "repo-settings-branch-permissions-link", "label": "Branch restrictions", "tab_name": "branch-permissions", "anchor": true, "weight": 120, "is_premium": null, "is_beta": null, "is_new": null, "url": "/shanelin/mancala/admin/branch-restrictions", "target": "_self", "icon_class": "", "badge_label": null, "matching_url_prefixes": [], "analytics_label": "repository.settings.branch-permissions", "analytics_payload": {}, "is_client_link": true, "is_external_link": false, "is_dropdown_item": false, "test_id": null, "children": [], "type": "menu_item", "icon": ""}, {"id": "repo-settings-branching-model-link", "label": "Branching model", "tab_name": "branching-model", "anchor": true, "weight": 121, "is_premium": null, "is_beta": null, "is_new": null, "url": "/shanelin/mancala/admin/branching-model", "target": "_self", "icon_class": "", "badge_label": null, "matching_url_prefixes": [], "analytics_label": "repository.settings.branching-model", "analytics_payload": {}, "is_client_link": true, "is_external_link": false, "is_dropdown_item": false, "test_id": null, "children": [], "type": "menu_item", "icon": ""}, {"id": "repo-settings-merge-strategies-link", "label": "Merge strategies", "tab_name": "merge-strategies", "anchor": true, "weight": 123, "is_premium": null, "is_beta": null, "is_new": null, "url": "/shanelin/mancala/admin/merge-strategies", "target": "_self", "icon_class": "", "badge_label": null, "matching_url_prefixes": [], "analytics_label": "repository.settings.merge-strategies", "analytics_payload": {}, "is_client_link": true, "is_external_link": false, "is_dropdown_item": false, "test_id": null, "children": [], "type": "menu_item", "icon": ""}, {"id": "repo-settings-webhooks-link", "label": "Webhooks", "tab_name": "webhooks", "anchor": true, "weight": 124, "is_premium": null, "is_beta": null, "is_new": null, "url": "/shanelin/mancala/admin/webhooks", "target": "_self", "icon_class": "", "badge_label": null, "matching_url_prefixes": ["/admin/webhooks/"], "analytics_label": "repository.settings.webhooks", "analytics_payload": {}, "is_client_link": true, "is_external_link": false, "is_dropdown_item": false, "test_id": null, "children": [], "type": "menu_item", "icon": ""}, {"id": "repo-settings-links-link", "label": "Links", "tab_name": "links", "anchor": true, "weight": 125, "is_premium": null, "is_beta": null, "is_new": null, "url": "/shanelin/mancala/admin/links", "target": "_self", "icon_class": "", "badge_label": null, "matching_url_prefixes": [], "analytics_label": "repository.settings.links", "analytics_payload": {}, "is_client_link": true, "is_external_link": false, "is_dropdown_item": false, "test_id": null, "children": [], "type": "menu_item", "icon": ""}]}, {"type": "menu_item_group", "title": "Pull Requests", "key": "org.bitbucket.repository.settings.pullrequests", "children": [{"id": "repo-settings-default-reviewers-link", "label": "Default reviewers", "tab_name": "default-reviewers", "anchor": true, "weight": 130, "is_premium": null, "is_beta": null, "is_new": null, "url": "/shanelin/mancala/admin/pullrequests/reviewers/", "target": "_self", "icon_class": "", "badge_label": null, "matching_url_prefixes": [], "analytics_label": "repository.settings.default-reviewers", "analytics_payload": {}, "is_client_link": true, "is_external_link": false, "is_dropdown_item": false, "test_id": null, "children": [], "type": "menu_item", "icon": ""}, {"id": "repo-settings-default-description-link", "label": "Default description", "tab_name": "default-pull-request-description", "anchor": true, "weight": 132, "is_premium": null, "is_beta": null, "is_new": null, "url": "/shanelin/mancala/admin/pullrequests/default-pull-request-description/", "target": "_self", "icon_class": "", "badge_label": null, "matching_url_prefixes": [], "analytics_label": "repository.settings.default-description", "analytics_payload": {}, "is_client_link": true, "is_external_link": false, "is_dropdown_item": false, "test_id": null, "children": [], "type": "menu_item", "icon": ""}, {"id": "repo-settings-default-tasks-link", "label": "Default tasks", "tab_name": "default-pull-request-tasks", "anchor": true, "weight": 133, "is_premium": null, "is_beta": null, "is_new": null, "url": "/shanelin/mancala/admin/pullrequests/default-pull-request-tasks/", "target": "_self", "icon_class": "", "badge_label": null, "matching_url_prefixes": [], "analytics_label": "repository.settings.default-tasks", "analytics_payload": {}, "is_client_link": true, "is_external_link": false, "is_dropdown_item": false, "test_id": null, "children": [], "type": "menu_item", "icon": ""}, {"id": "repo-settings-excluded-files-link", "label": "Excluded files", "tab_name": "excluded-files", "anchor": true, "weight": 134, "is_premium": null, "is_beta": null, "is_new": null, "url": "/shanelin/mancala/admin/pullrequests/excluded-files/", "target": "_self", "icon_class": "", "badge_label": null, "matching_url_prefixes": [], "analytics_label": "repository.settings.excluded-files", "analytics_payload": {}, "is_client_link": true, "is_external_link": false, "is_dropdown_item": false, "test_id": null, "children": [], "type": "menu_item", "icon": ""}]}, {"type": "menu_item_group", "title": "Features", "key": "org.bitbucket.repository.settings.features", "children": [{"id": "repo-settings-lfs-file-management-link", "label": "Git LFS", "tab_name": "lfs-file-management", "anchor": true, "weight": 140, "is_premium": null, "is_beta": null, "is_new": null, "url": "/shanelin/mancala/admin/lfs/file-management/", "target": "_self", "icon_class": "", "badge_label": null, "matching_url_prefixes": [], "analytics_label": "repository.settings.lfs-file-management", "analytics_payload": {}, "is_client_link": true, "is_external_link": false, "is_dropdown_item": false, "test_id": null, "children": [], "type": "menu_item", "icon": ""}, {"id": "repo-settings-wiki-link", "label": "Wiki", "tab_name": "wiki", "anchor": true, "weight": 141, "is_premium": null, "is_beta": null, "is_new": null, "url": "/shanelin/mancala/admin/wiki/", "target": "_self", "icon_class": "", "badge_label": null, "matching_url_prefixes": [], "analytics_label": "repository.settings.wiki", "analytics_payload": {}, "is_client_link": true, "is_external_link": false, "is_dropdown_item": false, "test_id": null, "children": [], "type": "menu_item", "icon": ""}, {"id": "repo-settings-issues-link", "label": "Issue tracker", "tab_name": "issues", "anchor": true, "weight": 150, "is_premium": null, "is_beta": null, "is_new": null, "url": "/shanelin/mancala/admin/issues", "target": "_self", "icon_class": "", "badge_label": null, "matching_url_prefixes": [], "analytics_label": "repository.settings.issues", "analytics_payload": {}, "is_client_link": true, "is_external_link": false, "is_dropdown_item": false, "test_id": null, "children": [], "type": "menu_item", "icon": ""}]}, {"type": "menu_item_group", "title": "Pipelines", "key": "org.bitbucket.repository.settings.pipelines", "children": [{"id": "repo-settings-pipelines-runners", "label": "Runners", "tab_name": "repositories.admin.pipelines.runners", "anchor": true, "weight": 101, "is_premium": null, "is_beta": null, "is_new": null, "url": "/shanelin/mancala/admin/pipelines/runners", "target": "_self", "icon_class": "", "badge_label": null, "matching_url_prefixes": [], "analytics_label": "repositories.admin.pipelines.runners", "analytics_payload": {}, "is_client_link": true, "is_external_link": false, "is_dropdown_item": false, "test_id": null, "children": [], "type": "menu_item", "icon": ""}, {"id": "repo-settings-pipelines-integrations", "label": "Integrations", "tab_name": "repositories.admin.pipelines.integrations", "anchor": true, "weight": 102, "is_premium": null, "is_beta": null, "is_new": null, "url": "/product/features/pipelines/integrations", "target": "_blank", "icon_class": "", "badge_label": null, "matching_url_prefixes": [], "analytics_label": "repositories.admin.pipelines.integrations", "analytics_payload": {}, "is_client_link": false, "is_external_link": true, "is_dropdown_item": false, "test_id": null, "children": [], "type": "menu_item", "icon": ""}, {"id": "repo-settings-pipelines-ssh-keys", "label": "SSH Keys", "tab_name": "repositories.admin.pipelines.sshkeys", "anchor": true, "weight": 103, "is_premium": null, "is_beta": null, "is_new": null, "url": "/shanelin/mancala/admin/pipelines/ssh-keys", "target": "_self", "icon_class": "", "badge_label": null, "matching_url_prefixes": [], "analytics_label": "repositories.admin.pipelines.sshkeys", "analytics_payload": {}, "is_client_link": true, "is_external_link": false, "is_dropdown_item": false, "test_id": null, "children": [], "type": "menu_item", "icon": ""}, {"id": "repo-settings-pipelines-deployments", "label": "Deployments", "tab_name": "repositories.admin.pipelines.deployments", "anchor": true, "weight": 104, "is_premium": null, "is_beta": null, "is_new": null, "url": "/shanelin/mancala/admin/pipelines/deployment-settings", "target": "_self", "icon_class": "", "badge_label": null, "matching_url_prefixes": [], "analytics_label": "repositories.admin.pipelines.deployments", "analytics_payload": {}, "is_client_link": true, "is_external_link": false, "is_dropdown_item": false, "test_id": null, "children": [], "type": "menu_item", "icon": ""}, {"id": "repo-settings-pipelines-repovars", "label": "Repository variables", "tab_name": "repositories.admin.pipelines.repovars", "anchor": true, "weight": 105, "is_premium": null, "is_beta": null, "is_new": null, "url": "/shanelin/mancala/admin/pipelines/repository-variables", "target": "_self", "icon_class": "", "badge_label": null, "matching_url_prefixes": [], "analytics_label": "repositories.admin.pipelines.repovars", "analytics_payload": {}, "is_client_link": true, "is_external_link": false, "is_dropdown_item": false, "test_id": null, "children": [], "type": "menu_item", "icon": ""}, {"id": "repo-settings-pipelines-oidconnect", "label": "OpenID Connect", "tab_name": "repositories.admin.pipelines.oidconnect", "anchor": true, "weight": 106, "is_premium": null, "is_beta": null, "is_new": null, "url": "/shanelin/mancala/admin/pipelines/openid-connect", "target": "_self", "icon_class": "", "badge_label": null, "matching_url_prefixes": [], "analytics_label": "repositories.admin.pipelines.oidconnect", "analytics_payload": {}, "is_client_link": true, "is_external_link": false, "is_dropdown_item": false, "test_id": null, "children": [], "type": "menu_item", "icon": ""}, {"id": "repo-settings-pipelines-dynamic-pipelines", "label": "Dynamic Pipelines", "tab_name": "repositories.admin.pipelines.dynamic.pipelines", "anchor": true, "weight": 107, "is_premium": true, "is_beta": null, "is_new": null, "url": "/shanelin/mancala/admin/pipelines/dynamic-pipelines", "target": "_self", "icon_class": "", "badge_label": null, "matching_url_prefixes": [], "analytics_label": "repositories.admin.pipelines.dynamic.pipelines", "analytics_payload": {}, "is_client_link": true, "is_external_link": false, "is_dropdown_item": false, "test_id": null, "children": [], "type": "menu_item", "icon": ""}, {"id": "repo-settings-pipelines-settings", "label": "Settings", "tab_name": "repositories.admin.pipelines.settings", "anchor": true, "weight": 108, "is_premium": null, "is_beta": null, "is_new": null, "url": "/shanelin/mancala/admin/pipelines/settings", "target": "_self", "icon_class": "", "badge_label": null, "matching_url_prefixes": [], "analytics_label": "repositories.admin.pipelines.settings", "analytics_payload": {}, "is_client_link": true, "is_external_link": false, "is_dropdown_item": false, "test_id": null, "children": [], "type": "menu_item", "icon": ""}]}, {"type": "menu_item_group", "title": "Slack", "key": "org.bitbucket.repository.admin.bitbucket-chats-integration-installer", "children": [{"id": "adminpage-qMzkeL-add-on-link", "label": "Settings", "tab_name": "adminpage-qMzkeL-add-on-link", "anchor": false, "weight": 100, "is_premium": null, "is_beta": null, "is_new": null, "url": "/shanelin/mancala/admin/addon/admin/bitbucket-chats-integration-installer/repo-config-admin", "target": "_self", "icon_class": "aui-iconfont-unfocus", "badge_label": null, "matching_url_prefixes": [], "analytics_label": "site.addon", "analytics_payload": {}, "is_client_link": true, "is_external_link": false, "is_dropdown_item": false, "test_id": null, "children": [], "type": "connect_menu_item", "icon_url": null}]}], "type": "menu_item", "icon": "icon-settings"}], "mirrors": [], "sizeLimits": {"hard": 4294967296, "soft": 2147483648.0, "readOnly": 10737418240.0}, "override_settings": {"default_merge_strategy": false, "branching_model": false}, "activeMenuItem": "source"}}, "repository": {"source": {"section": {"hash": "2f42659cce2fd0f624aea17fbc284003a4d5eb39", "ref": {"name": "master", "target": {"hash": "2f42659cce2fd0f624aea17fbc284003a4d5eb39", "links": {"self": {"href": "https://bitbucket.org/!api/2.0/repositories/shanelin/mancala/commit/2f42659cce2fd0f624aea17fbc284003a4d5eb39"}, "html": {"href": "https://bitbucket.org/shanelin/mancala/commits/2f42659cce2fd0f624aea17fbc284003a4d5eb39"}}, "type": "commit"}, "links": {"self": {"href": "https://bitbucket.org/!api/2.0/repositories/shanelin/mancala/refs/branches/master"}, "html": {"href": "https://bitbucket.org/shanelin/mancala/branch/master"}}}, "atRef": null}}}};
-      
-      window.__settings__ = {"ADMINHUB_BASE_URL": "https://admin.atlassian.com", "API_CANON_URL": "https://api.bitbucket.org", "CANON_URL": "https://bitbucket.org", "LOGIN_URL": "/account/signin/", "SOCIAL_AUTH_ATLASSIANID_LOGIN_PROMPT_URL": "https://id.atlassian.com/login", "SOCIAL_AUTH_ATLASSIANID_LOGOUT_URL": "https://id.atlassian.com/logout", "SOCIAL_AUTH_ATLASSIANID_PROFILE_URL": "https://id.atlassian.com/manage-profile/", "ATLASSIANID_LOGIN_URL": "https://id.atlassian.com/login", "ATLASSIANID_LOGOUT_URL": "https://id.atlassian.com/logout", "ATLASSIANID_MANAGE_PROFILE_URL": "https://id.atlassian.com/manage-profile/", "MARKETPLACE_TERMS_OF_USE_URL": null, "CONSENT_HUB_FRONTEND_BASE_URL": "https://preferences.atlassian.com", "EMOJI_STANDARD_BASE_URL": "https://bitbucket.org/gateway/api/emoji/", "STATUSPAGE_URL": "https://bitbucket.status.atlassian.com/", "RECAPTCHA_PUBLIC_KEY": "6LcRaMMkAAAAAFB-7L-4-1-mdLIrOMAP4H5asuWK", "WAC_CREATE_WORKSPACE_URL": "https://www.atlassian.com/try/cloud/signup?bundle=bitbucket"};
-      window.__webpack_nonce__ = '7y/8dK3zKxySEiw9bvplqw==';
-      window.isInitialLoadApdex = true;
-      
-      
-    </script>
-    
-      <script nonce="7y/8dK3zKxySEiw9bvplqw==" src="https://bbc-object-storage--frontbucket.us-east-1.prod.public.atl-paas.net/frontbucket/assets/present/32c216b5d88c36c768644138cb1aea59ad0bdfac/ajs.js"></script>
-    
-      <script nonce="7y/8dK3zKxySEiw9bvplqw==" src="https://bbc-object-storage--frontbucket.us-east-1.prod.public.atl-paas.net/frontbucket/assets/present/32c216b5d88c36c768644138cb1aea59ad0bdfac/app.js"></script>
-    
-    
-  </body>
-</html>
+  var isPot = Mancala._gameData.players[cupSide].cups[cupIdx].isPot();
+
+  // playering on other of game board:
+  // dont drop into other player's pot, switch side, and start at cup 0
+  if (cupSide !== player && isPot) {// setup turn data and continue interval
+      Mancala._turnData.cupSide = Helper.getOtherPlayerId(cupSide);//cupSide = player;
+      // cupIdx = 0;
+      Mancala._turnData.cupIdx = 0;//idx = 0;
+      Mancala._turnData.cupSide = Helper.getOtherPlayerId(cupSide);
+      console.log("######################## reached other player's pot, switch side");
+      return;
+  }
+
+  Mancala._gameData.players[cupSide].cups[/*Mancala._turnData.*/cupIdx].add();
+  Mancala._turnData.marbles--;
+  Game.showMarbles(player, Mancala._turnData.marbles);
+  if (Mancala._turnData.marbles === 0) {// pick all if last marble is used
+      // dropped into pot
+      if(Mancala._gameData.players[cupSide].cups[cupIdx].isPot() ) {// last marble placed in en mepty cup, end of turn
+          console.log('###got to pick again');
+          // TODO: check if no more masrbles in cups
+          if(Helper.isEndOfGame()) {
+              Helper.endOfGameRoutine();
+              return;
+          }
+          var playerMarblesInCup = Helper.getPlayerCupMarbleCount(player);
+          var otherPlayerMarblesInCup = Helper.getPlayerCupMarbleCount(otherPlayer);
+          if((playerMarblesInCup + otherPlayerMarblesInCup) === 1){// last marble on game board, start auto play
+              Mancala._turnData.autoPlay = true;
+              return;
+          }
+          Game.showMsg(`${Mancala._gameData.players[player].name} got to pick again`);
+          // window.Mancala._turnData = {
+          //     player: player
+          // };// unset turn data
+          window.clearInterval(window.intervalKey);
+          window.intervalKey = null;
+          return;
+      } else {// not pot
+          if (Mancala._gameData.players[cupSide].cups[cupIdx].getCount() === 1) {
+              // window.Mancala._turnData = null;// unset turn data
+              window.clearInterval(window.intervalKey);
+              window.intervalKey = null;
+              Game.showMsg(`end of turn. ${Mancala._gameData.players[otherPlayer].name} turn`);
+              Mancala._turnData.playerId =  Helper.getOtherPlayerId(player);
+              if (!Mancala._turnData.autoPlay){
+                  Mancala._turnData.cupSide =  Helper.getOtherPlayerId(player);
+                  Mancala._turnData.cupIdx = null;
+              }
+              
+          } else {// dropped into non-empty cup - pickup all marbles
+              Mancala._turnData.marbles = Mancala._gameData.players[cupSide].cups[Mancala._turnData.cupIdx].removeAll();
+              Game.showMarbles(player, Mancala._turnData.marbles);
+              Mancala._turnData.cupIdx++;
+              if (Mancala._turnData.cupIdx >= Mancala._gameData.players[cupSide].cups.length) {// reached end of cups, switch side
+                  Mancala._turnData.cupIdx = 0;//null;// indicatre need to change side
+                  // Mancala._turnData.otherSide = true;
+                  Mancala._turnData.cupSide = Helper.getOtherPlayerId(player);
+              }
+          }
+      }
+  } else {
+      // has more marbles, continue play - continue with interval
+      // otherwise, continue interval
+      Mancala._turnData.cupIdx++;
+      if (Mancala._turnData.cupIdx >= Mancala._gameData.players[player].cups.length) {
+          Mancala._turnData.cupIdx = 0;//null;// indicatre need to change side
+          // Mancala._turnData.otherSide = true;
+          Mancala._turnData.cupSide = Helper.getOtherPlayerId(player);
+      }
+  }
+
+  // TODO: count marbles, if no more on both side, end of game
+  if (Helper.isEndOfGame()) {
+      Helper.endOfGameRoutine();
+
+      // debug!!!
+      if (Mancala._turnData.marbles > 0) {
+          alert('more marbles, not end of game');
+      }
+      console.log('#####################d ebug', JSON.stringify(Helper.exportGameData()));
+      return;
+  }
+  if (Mancala._turnData.autoPlay){
+      // cancel interval
+      if (window.intervalKey) {
+          window.clearInterval(window.intervalKey);
+          window.intervalKey = null;
+      }
+      Helper.startAutoPlay();
+      // setTimeout( function(){
+      //     document.querySelector(`.${Mancala._turnData.cupSide}.cup.c${Mancala._turnData.cupIdx}`).click();
+      // }, Mancala._GAME_SPEED);
+  }
+};
+Game.showMsg = function(msg){
+  document.querySelector("#msg").innerHTML = msg;
+};
+
+Game.showMarbles = function(player, num){
+  document.querySelector(`#${player} div.hand`).innerHTML = num;
+};
+var foo = new Game();
+// set initial turn data
+// TODO: let player pick: 
+// 1. player vs computer
+// 2. player1 vs player2
+window.Mancala._turnData = {
+  playerId: null
+};
+
+
+// exported data
+
+// one side empty
+// {"_GAME_SPEED":1000,"_gameData":{"players":{"player1":{"id":"player1","name":"kristen","cups":[{"marbles":0,"pot":false,"player":"player1","idx":0},{"marbles":0,"pot":false,"player":"player1","idx":1},{"marbles":2,"pot":false,"player":"player1","idx":2},{"marbles":0,"pot":false,"player":"player1","idx":3},{"marbles":1,"pot":false,"player":"player1","idx":4},{"marbles":1,"pot":false,"player":"player1","idx":5},{"marbles":18,"pot":true,"player":"player1","idx":6}]},"player2":{"id":"player2","name":"Leia","cups":[{"marbles":0,"pot":false,"player":"player2","idx":0},{"marbles":0,"pot":false,"player":"player2","idx":1},{"marbles":0,"pot":false,"player":"player2","idx":2},{"marbles":0,"pot":false,"player":"player2","idx":3},{"marbles":0,"pot":false,"player":"player2","idx":4},{"marbles":0,"pot":false,"player":"player2","idx":5},{"marbles":14,"pot":true,"player":"player2","idx":6}]}}},"_turnData":{"playerId":"player2","cupSide":"player2","cupIdx":null}}
+
+// last marble
+// {"_GAME_SPEED":1000,"_gameData":{"players":{"player1":{"id":"player1","name":"kristen","cups":[{"marbles":0,"pot":false,"player":"player1","idx":0},{"marbles":0,"pot":false,"player":"player1","idx":1},{"marbles":0,"pot":false,"player":"player1","idx":2},{"marbles":0,"pot":false,"player":"player1","idx":3},{"marbles":0,"pot":false,"player":"player1","idx":4},{"marbles":0,"pot":false,"player":"player1","idx":5},{"marbles":21,"pot":true,"player":"player1","idx":6}]},"player2":{"id":"player2","name":"Leia","cups":[{"marbles":0,"pot":false,"player":"player2","idx":0},{"marbles":0,"pot":false,"player":"player2","idx":1},{"marbles":1,"pot":false,"player":"player2","idx":2},{"marbles":0,"pot":false,"player":"player2","idx":3},{"marbles":0,"pot":false,"player":"player2","idx":4},{"marbles":0,"pot":false,"player":"player2","idx":5},{"marbles":14,"pot":true,"player":"player2","idx":6}]}}},"_turnData":{"playerId":"player1","cupSide":"player1","cupIdx":6,"marbles":0}}
